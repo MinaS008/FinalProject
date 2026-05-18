@@ -724,9 +724,9 @@ public class EntryEditorPanel extends JPanel {
                 Location loc = (Location) entry;
                 loc.setLocationType(locationTypeField.getText().trim());
                 loc.setRegion(locationRegionField.getText().trim());
-                loc.getSubLocations().forEach(loc::removeSubLocation);
+                new ArrayList<>(loc.getSubLocations()).forEach(loc::removeSubLocation);
                 subLocations.forEach(loc::addSubLocation);
-                loc.getConnections().forEach(loc::removeConnection);
+                new ArrayList<>(loc.getConnections()).forEach(loc::removeConnection);
                 locationConnections.forEach(loc::addConnection);
                 break;
             }
@@ -746,20 +746,20 @@ public class EntryEditorPanel extends JPanel {
                 Faction f = (Faction) entry;
                 f.setGoal(factionGoalArea.getText().trim());
                 f.setIdeology(factionIdeologyArea.getText().trim());
-                f.getMembers().forEach(f::removeMember);
+                new ArrayList<>(f.getMembers()).forEach(f::removeMember);
                 factionMembers.forEach(f::addMember);
-                f.getFactionRelationships().forEach(f::removeFactionRelationship);
+                new ArrayList<>(f.getFactionRelationships()).forEach(f::removeFactionRelationship);
                 factionRelationships.forEach(f::addFactionRelationship);
                 break;
             }
             case "Lore": {
                 LoreEntry lore = (LoreEntry) entry;
                 lore.setEra((String) loreEraCombo.getSelectedItem());
-                lore.getTimeline().forEach(lore::removeTimelineEntry);
+                new ArrayList<>(lore.getTimeline()).forEach(lore::removeTimelineEntry);
                 loreTimeline.forEach(lore::addTimelineEntry);
-                lore.getConsequences().forEach(lore::removeConsequence);
+                new ArrayList<>(lore.getConsequences()).forEach(lore::removeConsequence);
                 loreConsequences.forEach(lore::addConsequence);
-                lore.getReferences().forEach(lore::removeReference);
+                new ArrayList<>(lore.getReferences()).forEach(lore::removeReference);
                 loreReferences.forEach(lore::addReference);
                 break;
             }

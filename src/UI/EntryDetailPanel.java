@@ -258,7 +258,7 @@ public class EntryDetailPanel extends JPanel {
     }
 
     private void handleEdit() {
-        mainFrame.navigateToEntry(currentWorld, currentEntry);
+        mainFrame.navigateToEditor(currentWorld, currentEntry);
     }
 
     private void handleDelete(){

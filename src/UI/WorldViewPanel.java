@@ -81,11 +81,16 @@ public class WorldViewPanel extends JPanel {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
 
+        JButton newEntryButton = buildStyleButton("+ New Entry", ThemeConstants.colorAccent, ThemeConstants.colorAccentDark);
+        newEntryButton.setForeground(Color.WHITE);
+        newEntryButton.addActionListener(e -> mainFrame.navigateToCreateEntry(currentWorld));
+
         JPanel topRow = new JPanel(new BorderLayout(ThemeConstants.padding, 0));
         topRow.setOpaque(false);
         topRow.setBorder(new EmptyBorder(0, 0, ThemeConstants.padding, 0));
         topRow.add(backButton, BorderLayout.WEST);
         topRow.add(titleBlock, BorderLayout.CENTER);
+        topRow.add(newEntryButton, BorderLayout.EAST);
 
         wrapper.add(topRow, BorderLayout.CENTER);
         wrapper.add(separator, BorderLayout.SOUTH);
@@ -296,6 +301,7 @@ public class WorldViewPanel extends JPanel {
                 row.repaint();
             }
             public void mouseClicked(MouseEvent e) {
+                mainFrame.navigateToEntry(currentWorld, entry);
             }
         });
 
@@ -412,5 +418,4 @@ public class WorldViewPanel extends JPanel {
         return button;
     }
 }
-
 

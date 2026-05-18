@@ -19,7 +19,7 @@ public class IDGenerator implements Serializable{
         String newID;
 
         do{
-            newID = "NX - " + UUID.randomUUID().toString();
+            newID = "NX-" + UUID.randomUUID().toString();
         } while (issuedIDs.contains(newID));
 
         issuedIDs.add(newID);

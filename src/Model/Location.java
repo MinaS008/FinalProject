@@ -29,7 +29,7 @@ public class Location extends CodexEntry {
         if (region == null || region.isBlank()) {
             return "Type: " + locationType + " | No regions set";
         }
-        return "Type: " + locationType + " |Region: " + region;
+        return "Type: " + locationType + " | Region: " + region;
     }
 
     public void addSubLocation(String location) {

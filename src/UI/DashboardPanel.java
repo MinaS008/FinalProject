@@ -115,7 +115,7 @@ public class DashboardPanel extends JPanel {
                 g2.setColor(ThemeConstants.colorBorder);
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ThemeConstants.cornerRadius, ThemeConstants.cornerRadius);
                 g2.dispose();
-        }
+            }
         };
         card.setOpaque(false);
         card.setPreferredSize(new Dimension(280, 160));
@@ -155,6 +155,9 @@ public class DashboardPanel extends JPanel {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         bottomPanel.add(metaLabel, BorderLayout.CENTER);
+        bottomPanel.add(deleteButton, BorderLayout.EAST);
+
+        card.add(topPanel, BorderLayout.CENTER);
         card.add(bottomPanel, BorderLayout.SOUTH);
 
         //Hover effect
@@ -215,9 +218,10 @@ public class DashboardPanel extends JPanel {
         dialogPanel.add(Box.createVerticalStrut(10));
         dialogPanel.add(styledLabel("Description(optional): "));
         dialogPanel.add(Box.createVerticalStrut(4));
+        dialogPanel.add(descScroll);
 
         int result = JOptionPane.showConfirmDialog(
-                mainFrame, dialogPanel, "Create New Wolrd", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+                mainFrame, dialogPanel, "Create New World", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
         );
 
         if(result == JOptionPane.OK_OPTION){

@@ -5,8 +5,8 @@ import java.nio.file.*;
 
 public class FileManager {
     private static final String rootDir = "nexus_data";
-    private static final String worldsDir = rootDir + File.separator + " worlds.";
-    private static final String fileExtension = " .ser";
+    private static final String worldsDir = rootDir + File.separator + "worlds";
+    private static final String fileExtension = ".ser";
 
     public FileManager() throws IOException {
         createDirectoriesIfAbsent();

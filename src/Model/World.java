@@ -1,6 +1,5 @@
 package Model;
 import java.io.Serializable;
-import java.sql.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -8,7 +7,7 @@ import java.util.List;
 
 
 
-public class World {
+public class World implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 

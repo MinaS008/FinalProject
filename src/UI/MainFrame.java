@@ -66,6 +66,12 @@ public class MainFrame extends JFrame {
         worldViewPanel = new WorldViewPanel(this, manager);
         cardContainer.add(worldViewPanel, panelWorldView);
 
+        entryEditorPanel = new EntryEditorPanel(this, manager);
+        cardContainer.add(entryEditorPanel, panelEntryEditor);
+
+        entryDetailPanel = new EntryDetailPanel(this, manager);
+        cardContainer.add(entryDetailPanel, panelEntryDetail);
+
         cardLayout.show(cardContainer, panelDashboard);
 
     }
