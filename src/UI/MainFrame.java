@@ -21,6 +21,8 @@ public class MainFrame extends JFrame {
     private DataStore dataStore;
     private JPanel cardContainer;
     private CardLayout cardLayout;
+    private NavigationBar navBar;
+
     private DashboardPanel dashboardPanel;
     private WorldViewPanel worldViewPanel;
     private EntryEditorPanel entryEditorPanel;
@@ -45,6 +47,9 @@ public class MainFrame extends JFrame {
             showErrorDialog("Could not initialise save system:\n" + e.getMessage()
                     + "\n\nThe app will run but data will not be saved.");
         }
+
+        navBar = new NavigationBar(this);
+        add(navBar, BorderLayout.NORTH);
 
         buildCardContainer();
         add(cardContainer, BorderLayout.CENTER);
@@ -81,8 +86,9 @@ public class MainFrame extends JFrame {
     }
 
     public void navigateToDashboard(){
+        navBar.highlight(NavigationBar.sectionDashboard, null, null);
         dashboardPanel.refresh();
-        switchPanel(panelDashboard);
+        cardLayout.show(cardContainer, panelDashboard);
     }
 
     public void navigateToWorld(String worldId) {
@@ -91,28 +97,36 @@ public class MainFrame extends JFrame {
             showErrorDialog("Could not find world with ID: " + worldId);
             return;
         }
+        navBar.highlight(NavigationBar.sectionWorldView, world, null);
         worldViewPanel.loadWorld(world);
-        switchPanel(panelWorldView);
+        cardLayout.show(cardContainer, panelWorldView);
     }
 
     public void navigateToWorldView() {
+        World world = worldViewPanel.getCurrentWorld();
+        navBar.highlight(NavigationBar.sectionWorldView, world, null);
         worldViewPanel.refresh();
         cardLayout.show(cardContainer, panelWorldView);
     }
 
     public void navigateToCreateEntry(World world) {
+        navBar.highlight(NavigationBar.sectionEntryEditor, world, "New Entry");
         entryEditorPanel.loadForCreate(world);
         cardLayout.show(cardContainer, panelEntryEditor);
     }
 
     public void navigateToEditor(World world, CodexEntry entry) {
+        navBar.highlight(NavigationBar.sectionEntryEditor, world,
+                "Edit: " + entry.getName());
         entryEditorPanel.loadForEdit(world, entry);
         cardLayout.show(cardContainer, panelEntryEditor);
     }
 
     public void navigateToEntry(World world, CodexEntry entry){
+        navBar.highlight(NavigationBar.sectionEntryDetail, world, entry.getName());
         entryDetailPanel.loadEntry(world, entry);
         cardLayout.show(cardContainer, panelEntryDetail);
+
     }
 
     private void loadSavedWorlds(){

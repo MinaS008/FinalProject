@@ -469,6 +469,10 @@ public class WorldViewPanel extends JPanel {
     }
 
     //Public API
+    public World getCurrentWorld() {
+        return currentWorld;
+    }
+
     public void loadWorld(World world){
         this.currentWorld = world;
         this.activeTab = tabAll;
