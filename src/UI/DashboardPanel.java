@@ -2,6 +2,8 @@ package UI;
 import Controller.WorldManager;
 import Helper.*;
 import Model.*;
+import Utilities.*;
+import Controller.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -226,37 +228,36 @@ public class DashboardPanel extends JPanel {
 
         if(result == JOptionPane.OK_OPTION){
             String name = nameField.getText().trim();
-            if(name.isEmpty()){
-                JOptionPane.showMessageDialog(mainFrame,
-                        "World name cannot be empty.", "Validation Error",
-                        JOptionPane.WARNING_MESSAGE);
+            String description = descArea.getText().trim();
+
+            Validator.ValidationResult result1 = Validator.validateWorld(name, description);
+            if (!result1.isValid()) {
+                NotificationManager.showWarning(mainFrame, result1.getMessage());
                 return;
             }
-
-            String description = descArea.getText().trim();
 
             try{
                 World newWorld = worldManager.createWorld(name, description);
                 mainFrame.saveWorld(newWorld);
+                NotificationManager.showSuccess(mainFrame, newWorld.getName() + " created!");
                 refresh();
             } catch (IllegalArgumentException e){
-                mainFrame.showErrorDialog(e.getMessage());
+                NotificationManager.showError(mainFrame, e.getMessage());
             }
         }
     }
 
     private void handleDeleteWorld(World world){
-        int confirm = JOptionPane.showConfirmDialog(
+        boolean confirmed = NotificationManager.showConfirm(
                 mainFrame,
                 "Delete \"" + world.getName() + "\"?\nThis cannot be undone.",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+                "Confirm Delete");
 
-        if(confirm == JOptionPane.YES_OPTION){
+        if (confirmed) {
             worldManager.deleteWorld(world.getID());
             mainFrame.deleteSavedWorld(world.getID());
+            NotificationManager.showSuccess(mainFrame,
+                    "\"" + world.getName() + "\" deleted.");
             refresh();
         }
     }
