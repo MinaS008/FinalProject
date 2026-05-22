@@ -30,11 +30,16 @@ public class WorldViewPanel extends JPanel {
     private World currentWorld;
     private String activeTab = tabAll;
 
+    private String activeQuery = "";
+    private String activeSortMode = SearchEngine.sortNameAsc;
+
     private JLabel worldNameLabel;
     private JLabel entryCountLabel;
     private JPanel tabBar;
     private JPanel entryListPanel;
     private JScrollPane scrollPane;
+    private JTextField searchField;
+    private JLabel resultCountLabel;
 
     public WorldViewPanel(MainFrame mainFrame, WorldManager worldManager) {
         this.mainFrame = mainFrame;
@@ -83,7 +88,9 @@ public class WorldViewPanel extends JPanel {
 
         JButton newEntryButton = buildStyleButton("+ New Entry", ThemeConstants.colorAccent, ThemeConstants.colorAccentDark);
         newEntryButton.setForeground(Color.WHITE);
-        newEntryButton.addActionListener(e -> mainFrame.navigateToCreateEntry(currentWorld));
+        newEntryButton.addActionListener(e -> {
+            if (currentWorld != null) mainFrame.navigateToCreateEntry(currentWorld);
+        });
 
         JPanel topRow = new JPanel(new BorderLayout(ThemeConstants.padding, 0));
         topRow.setOpaque(false);
@@ -102,8 +109,16 @@ public class WorldViewPanel extends JPanel {
         JPanel center = new JPanel(new BorderLayout(0, ThemeConstants.padding));
         center.setOpaque(false);
 
+        JPanel northStack = new JPanel();
+        northStack.setLayout(new BoxLayout(northStack, BoxLayout.Y_AXIS));
+        northStack.setOpaque(false);
+
         tabBar = buildTabBar();
-        center.add(tabBar, BorderLayout.NORTH);
+        northStack.add(tabBar);
+        northStack.add(Box.createVerticalStrut(ThemeConstants.padding));
+        northStack.add(buildSearchBar());
+
+        center.add(northStack, BorderLayout.NORTH);
 
         entryListPanel = new JPanel();
         entryListPanel.setLayout(new BoxLayout(entryListPanel, BoxLayout.Y_AXIS));
@@ -118,6 +133,87 @@ public class WorldViewPanel extends JPanel {
 
         center.add(scrollPane, BorderLayout.CENTER);
         return center;
+    }
+
+    private JPanel buildSearchBar() {
+        JPanel bar = new JPanel(new BorderLayout(ThemeConstants.padding, 0));
+        bar.setOpaque(false);
+        bar.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+        // Search field with placeholder
+        searchField = new JTextField();
+        searchField.setFont(ThemeConstants.fontBody);
+        searchField.setForeground(ThemeConstants.colorTextPlaceholder);
+        searchField.setBackground(ThemeConstants.colorSurface);
+        searchField.setCaretColor(ThemeConstants.colorTextPrimary);
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ThemeConstants.colorBorder),
+                new javax.swing.border.EmptyBorder(6, 10, 6, 10)));
+        searchField.setText("Search entries...");
+
+        searchField.addFocusListener(new FocusAdapter() {
+            @Override public void focusGained(FocusEvent e) {
+                if (searchField.getText().equals("Search entries...")) {
+                    searchField.setText("");
+                    searchField.setForeground(ThemeConstants.colorTextPrimary);
+                }
+            }
+            @Override public void focusLost(FocusEvent e) {
+                if (searchField.getText().isBlank()) {
+                    searchField.setText("Search entries...");
+                    searchField.setForeground(ThemeConstants.colorTextPlaceholder);
+                }
+            }
+        });
+
+        // Live search: fire on every keystroke via DocumentListener
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e)  { onSearchChanged(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e)  { onSearchChanged(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { onSearchChanged(); }
+        });
+
+        // Sort dropdown
+        JComboBox<String> sortCombo = new JComboBox<>(SearchEngine.sortOptions);
+        sortCombo.setFont(ThemeConstants.fontSmall);
+        sortCombo.setBackground(ThemeConstants.colorSurface);
+        sortCombo.setForeground(ThemeConstants.colorTextPrimary);
+        sortCombo.setSelectedItem(activeSortMode);
+        sortCombo.setPreferredSize(new Dimension(160, 34));
+        sortCombo.addActionListener(e -> {
+            activeSortMode = (String) sortCombo.getSelectedItem();
+            populateEntryList();
+        });
+
+        // Result count label (right of sort combo)
+        resultCountLabel = new JLabel("");
+        resultCountLabel.setFont(ThemeConstants.fontSmall);
+        resultCountLabel.setForeground(ThemeConstants.colorTextSecondary);
+
+        JPanel rightBlock = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        rightBlock.setOpaque(false);
+        rightBlock.add(resultCountLabel);
+        rightBlock.add(sortCombo);
+
+        bar.add(searchField, BorderLayout.CENTER);
+        bar.add(rightBlock, BorderLayout.EAST);
+
+        return bar;
+    }
+
+    private void onSearchChanged(){
+        String raw = searchField.getText();
+        if(raw.equals("Search entries...") || raw.isBlank()){
+            activeQuery = "";
+        } else {
+            Validator.ValidationResult result = Validator.validateSearchQuery(raw);
+            if(!result.isValid()){
+                resultCountLabel.setText("Query too long");
+                return;
+            }
+            activeQuery = raw;
+        }
+        populateEntryList();
     }
 
     private JPanel buildTabBar() {
@@ -205,13 +301,25 @@ public class WorldViewPanel extends JPanel {
             return;
         }
 
+        List<CodexEntry> allEntries = worldManager.getEntries(currentWorld.getID(), null);
         String typeFilter = activeTab.equals(tabAll) ? null : tabTypeFor(activeTab);
-        List<CodexEntry> entries = worldManager.getEntries(currentWorld.getID(), typeFilter);
 
-        if (entries.isEmpty()) {
+        List<CodexEntry> results = SearchEngine.search(allEntries, activeQuery, typeFilter, activeSortMode);
+
+
+        if (resultCountLabel != null) {
+            if (activeQuery.isEmpty()) {
+                resultCountLabel.setText("");
+            } else {
+                resultCountLabel.setText(results.size()
+                        + " result" + (results.size() == 1 ? "" : "s"));
+            }
+        }
+
+        if (results.isEmpty()) {
             entryListPanel.add(buildEmptyState());
         } else {
-            for (CodexEntry entry : entries) {
+            for (CodexEntry entry : results) {
                 entryListPanel.add(buildEntryRow(entry));
                 entryListPanel.add(Box.createVerticalStrut(8));
             }
@@ -364,6 +472,13 @@ public class WorldViewPanel extends JPanel {
     public void loadWorld(World world){
         this.currentWorld = world;
         this.activeTab = tabAll;
+        this.activeQuery = "";
+        this.activeSortMode = SearchEngine.sortNameAsc;
+
+        if(searchField != null){
+            searchField.setText("Search entries...");
+            searchField.setForeground(ThemeConstants.colorTextPlaceholder);
+        }
 
         worldNameLabel.setText(world.getName());
         updateEntryCount();
@@ -418,4 +533,3 @@ public class WorldViewPanel extends JPanel {
         return button;
     }
 }
-

@@ -616,13 +616,17 @@ public class EntryEditorPanel extends JPanel {
     }
 
     private void handleSave(){
-        String name = nameField.getText().trim();
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(mainFrame, "Name cannot be empty", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        String rawName = nameField.getText().trim();
+        String name = rawName.equals("Enter a name...") ? "" : rawName;
+
+        String rawDesc = descriptionArea.getText().trim();
+        String description = rawDesc.equals("Enter a description...") ? "" : rawDesc;
+
+        Validator.ValidationResult baseResult = Validator.validateEntryBase(name, description);
+        if(!baseResult.isValid()){
+            NotificationManager.showWarning(mainFrame, baseResult.getMessage());
             return;
         }
-
-        String description = descriptionArea.getText().trim();
 
         if(entryToEdit == null){
             //CREATE MODE - build the correct subclass and add it
@@ -645,9 +649,11 @@ public class EntryEditorPanel extends JPanel {
         String id = worldManager.generateNewID();
         switch (selectedType) {
             case "Character": {
-                String role = charRoleField.getText().trim();
-                if (role.isEmpty()) {
-                    showValidationError("Role is required for a Character.");
+                String rawRole = charRoleField.getText().trim();
+                String role = rawRole.equals("e.g. Knight, Merchant, Villain...") ? "" : rawRole;
+                Validator.ValidationResult charResult = Validator.validateCharacter(role);
+                if(!charResult.isValid()){
+                    showValidationError(charResult.getMessage());
                     return null;
                 }
                 Model.Character c = new Model.Character(id, name, description, role);
@@ -658,9 +664,11 @@ public class EntryEditorPanel extends JPanel {
                 return c;
             }
             case "Location": {
-                String locType = locationTypeField.getText().trim();
-                if (locType.isEmpty()) {
-                    showValidationError("Location Type is required.");
+                String rawLocType = locationTypeField.getText().trim();
+                String locType = rawLocType.equals("e.g. City, Kingdom, Planet, Dungeon...") ? "" : rawLocType;
+                Validator.ValidationResult locResult = Validator.validateLocation(locType);
+                if (!locResult.isValid()) {
+                    showValidationError(locResult.getMessage());
                     return null;
                 }
                 Location loc = new Location(id, name, description, locType);
@@ -670,9 +678,11 @@ public class EntryEditorPanel extends JPanel {
                 return loc;
             }
             case "Item": {
-                String itemType = itemTypeField.getText().trim();
-                if (itemType.isEmpty()) {
-                    showValidationError("Item Type is required.");
+                String rawItemType = itemTypeField.getText().trim();
+                String itemType = rawItemType.equals("e.g. Weapon, Artifact, Tome, Potion...") ? "" : rawItemType;
+                Validator.ValidationResult itemResult = Validator.validateItem(itemType);
+                if (!itemResult.isValid()) {
+                    showValidationError(itemResult.getMessage());
                     return null;
                 }
                 String rarity = (String) itemRarityCombo.getSelectedItem();
@@ -683,8 +693,9 @@ public class EntryEditorPanel extends JPanel {
             }
             case "Faction": {
                 String goal = factionGoalArea.getText().trim();
-                if (goal.isEmpty()) {
-                    showValidationError("Goal is required for a Faction.");
+                Validator.ValidationResult factionResult = Validator.validateFaction(goal);
+                if (!factionResult.isValid()) {
+                    showValidationError(factionResult.getMessage());
                     return null;
                 }
                 Faction f = new Faction(id, name, description, goal);
@@ -818,7 +829,7 @@ public class EntryEditorPanel extends JPanel {
     }
 
     private void showValidationError(String message){
-        JOptionPane.showMessageDialog(mainFrame, message, "Validation Error", JOptionPane.WARNING_MESSAGE);
+        NotificationManager.showWarning(mainFrame, message);
     }
 
     private JPanel buildSection(String title) {
@@ -951,7 +962,4 @@ public class EntryEditorPanel extends JPanel {
         });
         return button;
     }
-
-
-
 }

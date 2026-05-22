@@ -261,20 +261,21 @@ public class EntryDetailPanel extends JPanel {
         mainFrame.navigateToEditor(currentWorld, currentEntry);
     }
 
-    private void handleDelete(){
-        int confirm = JOptionPane.showConfirmDialog(
+    private void handleDelete() {
+        boolean confirmed = NotificationManager.showConfirm(
                 mainFrame,
                 "Delete \"" + currentEntry.getName() + "\"?\nThis cannot be undone.",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
+                "Confirm Delete");
 
-        if (confirm == JOptionPane.YES_OPTION) {
+        if (confirmed) {
+            String deletedName = currentEntry.getName();
             worldManager.deleteEntry(currentWorld.getID(), currentEntry.getID());
             mainFrame.saveWorld(currentWorld);
+            NotificationManager.showSuccess(mainFrame, "\"" + deletedName + "\" deleted.");
             mainFrame.navigateToWorldView();
         }
     }
+
 
     private JPanel buildSection(String title){
         JPanel section = new JPanel(){
