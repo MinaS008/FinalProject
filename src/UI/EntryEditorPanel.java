@@ -200,7 +200,12 @@ public class EntryEditorPanel extends JPanel {
 
         if(entryToEdit != null){
             nameField.setText(entryToEdit.getName());
-            descriptionArea.setText(entryToEdit.getDescription());
+            nameField.setForeground(ThemeConstants.colorTextPrimary);
+            String existingDesc = entryToEdit.getDescription();
+            if (!existingDesc.isBlank()) {
+                descriptionArea.setText(existingDesc);
+                descriptionArea.setForeground(ThemeConstants.colorTextPrimary);
+            }
         }
 
         SwingUtilities.invokeLater(()->
@@ -312,16 +317,23 @@ public class EntryEditorPanel extends JPanel {
         section.add(formLabel("Role *"));
         section.add(vertSpacer(4));
         charRoleField = buildTextField("e.g. Knight, Merchant, Villain...");
-        if (entryToEdit instanceof Model.Character)
+        if (entryToEdit instanceof Model.Character) {
             charRoleField.setText(((Model.Character) entryToEdit).getRole());
+            charRoleField.setForeground(ThemeConstants.colorTextPrimary);
+        }
         section.add(charRoleField);
         section.add(vertSpacer(ThemeConstants.padding));
 
         section.add(formLabel("Backstory"));
         section.add(vertSpacer(4));
         charBackstoryArea = buildTextArea("Character's origin and history...", 4);
-        if (entryToEdit instanceof Model.Character)
-            charBackstoryArea.setText(((Model.Character) entryToEdit).getBackstory());
+        if (entryToEdit instanceof Model.Character) {
+            String existing = ((Model.Character) entryToEdit).getBackstory();
+            if (!existing.isBlank()) {
+                charBackstoryArea.setText(existing);
+                charBackstoryArea.setForeground(ThemeConstants.colorTextPrimary);
+            }
+        }
         section.add(scrollWrap(charBackstoryArea, 120));
         section.add(vertSpacer(ThemeConstants.padding));
 
@@ -367,16 +379,20 @@ public class EntryEditorPanel extends JPanel {
         section.add(formLabel("Location Type *"));
         section.add(vertSpacer(4));
         locationTypeField = buildTextField("e.g. City, Kingdom, Planet, Dungeon...");
-        if (entryToEdit instanceof Location)
+        if (entryToEdit instanceof Location) {
             locationTypeField.setText(((Location) entryToEdit).getLocationType());
+            locationTypeField.setForeground(ThemeConstants.colorTextPrimary);
+        }
         section.add(locationTypeField);
         section.add(vertSpacer(ThemeConstants.padding));
 
         section.add(formLabel("Region"));
         section.add(vertSpacer(4));
         locationRegionField = buildTextField("e.g. Northern Wastes, Outer Rim...");
-        if (entryToEdit instanceof Location)
+        if (entryToEdit instanceof Location) {
             locationRegionField.setText(((Location) entryToEdit).getRegion());
+            locationRegionField.setForeground(ThemeConstants.colorTextPrimary);
+        }
         section.add(locationRegionField);
         section.add(vertSpacer(ThemeConstants.padding));
 
@@ -412,8 +428,10 @@ public class EntryEditorPanel extends JPanel {
         section.add(formLabel("Item Type *"));
         section.add(vertSpacer(4));
         itemTypeField = buildTextField("e.g. Weapon, Artifact, Tome, Potion...");
-        if (entryToEdit instanceof Item)
+        if (entryToEdit instanceof Item) {
             itemTypeField.setText(((Item) entryToEdit).getItemType());
+            itemTypeField.setForeground(ThemeConstants.colorTextPrimary);
+        }
         section.add(itemTypeField);
         section.add(vertSpacer(ThemeConstants.padding));
 
@@ -433,8 +451,13 @@ public class EntryEditorPanel extends JPanel {
         section.add(formLabel("Power / Special Ability"));
         section.add(vertSpacer(4));
         itemPowerArea = buildTextArea("Describe the item's power or effect...", 3);
-        if (entryToEdit instanceof Item)
-            itemPowerArea.setText(((Item) entryToEdit).getPower());
+        if (entryToEdit instanceof Item) {
+            String existing = ((Item) entryToEdit).getPower();
+            if (!existing.isBlank()) {
+                itemPowerArea.setText(existing);
+                itemPowerArea.setForeground(ThemeConstants.colorTextPrimary);
+            }
+        }
         section.add(scrollWrap(itemPowerArea, 100));
         section.add(vertSpacer(ThemeConstants.padding));
 
@@ -457,16 +480,26 @@ public class EntryEditorPanel extends JPanel {
         section.add(formLabel("Goal *"));
         section.add(vertSpacer(4));
         factionGoalArea = buildTextArea("The faction's primary objective...", 3);
-        if (entryToEdit instanceof Faction)
-            factionGoalArea.setText(((Faction) entryToEdit).getGoal());
+        if (entryToEdit instanceof Faction) {
+            String existing = ((Faction) entryToEdit).getGoal();
+            if (!existing.isBlank()) {
+                factionGoalArea.setText(existing);
+                factionGoalArea.setForeground(ThemeConstants.colorTextPrimary);
+            }
+        }
         section.add(scrollWrap(factionGoalArea, 100));
         section.add(vertSpacer(ThemeConstants.padding));
 
         section.add(formLabel("Ideology"));
         section.add(vertSpacer(4));
         factionIdeologyArea = buildTextArea("The faction's beliefs and values...", 3);
-        if (entryToEdit instanceof Faction)
-            factionIdeologyArea.setText(((Faction) entryToEdit).getIdeology());
+        if (entryToEdit instanceof Faction) {
+            String existing = ((Faction) entryToEdit).getIdeology();
+            if (!existing.isBlank()) {
+                factionIdeologyArea.setText(existing);
+                factionIdeologyArea.setForeground(ThemeConstants.colorTextPrimary);
+            }
+        }
         section.add(scrollWrap(factionIdeologyArea, 100));
         section.add(vertSpacer(ThemeConstants.padding));
 
@@ -618,6 +651,7 @@ public class EntryEditorPanel extends JPanel {
             listPanel.add(row);
         }
         listPanel.revalidate();
+        listPanel.repaint();
     }
 
     private void handleSave(){
@@ -625,7 +659,7 @@ public class EntryEditorPanel extends JPanel {
         String name = rawName.equals("Enter a name...") ? "" : rawName;
 
         String rawDesc = descriptionArea.getText().trim();
-        String description = rawDesc.equals("Enter a description...") ? "" : rawDesc;
+        String description = (rawDesc.equals("Enter a description...") || rawDesc.isEmpty()) ? "" : rawDesc;
 
         Validator.ValidationResult baseResult = Validator.validateEntryBase(name, description);
         if(!baseResult.isValid()){
@@ -678,7 +712,8 @@ public class EntryEditorPanel extends JPanel {
                     return null;
                 }
                 Location loc = new Location(id, name, description, locType);
-                loc.setRegion(locationRegionField.getText().trim());
+                String rawRegion = locationRegionField.getText().trim();
+                loc.setRegion(rawRegion.equals("e.g. Northern Wastes, Outer Rim...") ? "" : rawRegion);
                 subLocations.forEach(loc::addSubLocation);
                 locationConnections.forEach(loc::addConnection);
                 return loc;
@@ -729,8 +764,10 @@ public class EntryEditorPanel extends JPanel {
         switch (entry.getType()) {
             case "Character": {
                 Model.Character c = (Model.Character) entry;
-                c.setRole(charRoleField.getText().trim());
-                c.setBackstory(charBackstoryArea.getText().trim());
+                String rawRole = charRoleField.getText().trim();
+                c.setRole(rawRole.equals("e.g. Knight, Merchant, Villain...") ? "" : rawRole);
+                String rawBackstory = charBackstoryArea.getText().trim();
+                c.setBackstory(rawBackstory.equals("Character's origin and history...") ? "" : rawBackstory);
                 // Replace all list content by clearing and re-adding.
                 // Must snapshot first (toArray) because getAffiliations() etc.
                 // return defensive copies — iterating them to call remove()
@@ -745,8 +782,10 @@ public class EntryEditorPanel extends JPanel {
             }
             case "Location": {
                 Location loc = (Location) entry;
-                loc.setLocationType(locationTypeField.getText().trim());
-                loc.setRegion(locationRegionField.getText().trim());
+                String rawLocType = locationTypeField.getText().trim();
+                loc.setLocationType(rawLocType.equals("e.g. City, Kingdom, Planet, Dungeon...") ? "" : rawLocType);
+                String rawRegion = locationRegionField.getText().trim();
+                loc.setRegion(rawRegion.equals("e.g. Northern Wastes, Outer Rim...") ? "" : rawRegion);
                 new ArrayList<>(loc.getSubLocations()).forEach(loc::removeSubLocation);
                 subLocations.forEach(loc::addSubLocation);
                 new ArrayList<>(loc.getConnections()).forEach(loc::removeConnection);
@@ -755,9 +794,11 @@ public class EntryEditorPanel extends JPanel {
             }
             case "Item": {
                 Item item = (Item) entry;
-                item.setItemType(itemTypeField.getText().trim());
+                String rawItemType = itemTypeField.getText().trim();
+                item.setItemType(rawItemType.equals("e.g. Weapon, Artifact, Tome, Potion...") ? "" : rawItemType);
                 item.setRarity((String) itemRarityCombo.getSelectedItem());
-                item.setPower(itemPowerArea.getText().trim());
+                String rawPower = itemPowerArea.getText().trim();
+                item.setPower(rawPower.equals("Describe the item's power or effect...") ? "" : rawPower);
                 // Owner history: append any new owners not already in the list
                 List<String> existing = item.getOwnerHistory();
                 for (String owner : itemOwners) {
@@ -767,8 +808,10 @@ public class EntryEditorPanel extends JPanel {
             }
             case "Faction": {
                 Faction f = (Faction) entry;
-                f.setGoal(factionGoalArea.getText().trim());
-                f.setIdeology(factionIdeologyArea.getText().trim());
+                String rawGoal = factionGoalArea.getText().trim();
+                f.setGoal(rawGoal.equals("The faction's primary objective...") ? "" : rawGoal);
+                String rawIdeology = factionIdeologyArea.getText().trim();
+                f.setIdeology(rawIdeology.equals("The faction's beliefs and values...") ? "" : rawIdeology);
                 new ArrayList<>(f.getMembers()).forEach(f::removeMember);
                 factionMembers.forEach(f::addMember);
                 new ArrayList<>(f.getFactionRelationships()).forEach(f::removeFactionRelationship);
@@ -901,10 +944,15 @@ public class EntryEditorPanel extends JPanel {
                 }
             }
             @Override public void focusLost(FocusEvent e) {
-                if (field.getText().isEmpty()) {
-                    field.setText(placeholder);
-                    field.setForeground(ThemeConstants.colorTextPlaceholder);
-                }
+                // Use invokeLater so the button's ActionListener runs FIRST,
+                // before we potentially restore the placeholder. This prevents
+                // the field from being wiped before the Add button can read it.
+                SwingUtilities.invokeLater(() -> {
+                    if (field.getText().isEmpty()) {
+                        field.setText(placeholder);
+                        field.setForeground(ThemeConstants.colorTextPlaceholder);
+                    }
+                });
             }
         });
         return field;
@@ -913,12 +961,30 @@ public class EntryEditorPanel extends JPanel {
     private JTextArea buildTextArea(String placeholder, int rows) {
         JTextArea area = new JTextArea(rows, 0);
         area.setFont(ThemeConstants.fontBody);
-        area.setForeground(ThemeConstants.colorTextPrimary);
+        area.setForeground(ThemeConstants.colorTextPlaceholder);
         area.setBackground(ThemeConstants.colorSurface);
         area.setCaretColor(ThemeConstants.colorTextPrimary);
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setBorder(new EmptyBorder(6, 8, 6, 8));
+
+        area.setText(placeholder);
+        area.addFocusListener(new FocusAdapter() {
+            @Override public void focusGained(FocusEvent e) {
+                if (area.getText().equals(placeholder)) {
+                    area.setText("");
+                    area.setForeground(ThemeConstants.colorTextPrimary);
+                }
+            }
+            @Override public void focusLost(FocusEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    if (area.getText().isEmpty()) {
+                        area.setText(placeholder);
+                        area.setForeground(ThemeConstants.colorTextPlaceholder);
+                    }
+                });
+            }
+        });
         return area;
     }
 
