@@ -654,7 +654,62 @@ public class EntryEditorPanel extends JPanel {
         listPanel.repaint();
     }
 
+    private void commitPendingFields() {
+
+        commitTextField(charAffiliationField, charAffiliations, charAffiliationListPanel);
+        commitTextField(charAbilityField, charAbilities, charAbilityListPanel);
+        commitTextField(charRelationshipField, charRelationships, charRelationshipListPanel);
+
+        commitTextField(subLocationField, subLocations, subLocationListPanel);
+        commitTextField(locationConnectionField, locationConnections, locationConnectionListPanel);
+
+        commitTextField(itemOwnerField, itemOwners, itemOwnerListPanel);
+
+        commitTextField(factionMemberField, factionMembers, factionMemberListPanel);
+        commitTextField(factionRelationshipField, factionRelationships, factionRelationshipListPanel);
+
+        commitTextField(loreTimelineField, loreTimeline, loreTimelineListPanel);
+        commitTextField(loreConsequenceField, loreConsequences, loreConsequenceListPanel);
+        commitTextField(loreReferenceField, loreReferences, loreReferenceListPanel);
+    }
+
+    private void commitTextField(
+            JTextField field,
+            List<String> backingList,
+            JPanel listPanel
+    ) {
+        if (field == null) return;
+
+        String text = field.getText().trim();
+
+        Object placeholderObj = field.getClientProperty("placeholder");
+        String placeholder = placeholderObj == null ? "" : placeholderObj.toString();
+
+        if (!text.isEmpty() && !text.equals(placeholder)) {
+
+            if (!backingList.contains(text)) {
+                backingList.add(text);
+
+                JLabel label = new JLabel(text);
+                label.setForeground(ThemeConstants.colorTextPrimary);
+
+                JPanel chip = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+                chip.setOpaque(false);
+                chip.add(label);
+
+                listPanel.add(chip);
+                listPanel.revalidate();
+                listPanel.repaint();
+            }
+
+            field.setText(placeholder);
+            field.setForeground(ThemeConstants.colorTextPlaceholder);
+        }
+    }
+
     private void handleSave(){
+        commitPendingFields();
+
         String rawName = nameField.getText().trim();
         String name = rawName.equals("Enter a name...") ? "" : rawName;
 
