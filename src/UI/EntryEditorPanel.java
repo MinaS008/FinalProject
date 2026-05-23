@@ -728,12 +728,15 @@ public class EntryEditorPanel extends JPanel {
             if(newEntry == null) return;
 
             worldManager.addEntry(currentWorld.getID(), newEntry);
+            mainFrame.getUndoRedoManager().recordAdd(currentWorld, newEntry);
             mainFrame.saveWorld(currentWorld);
             mainFrame.navigateToEntry(currentWorld, newEntry);
         } else {
-            //EDIT Mode - update base fields via WorldManager, then subclass fields directly
+            //EDIT Mode - snapshot before updating, then apply changes
+            CodexEntry snapshot = entryToEdit.deepCopy();
             worldManager.updateEntry(currentWorld.getID(), entryToEdit.getID(), name, description);
             updateSubclassFields(entryToEdit);
+            mainFrame.getUndoRedoManager().recordEdit(currentWorld, snapshot);
             mainFrame.saveWorld(currentWorld);
             mainFrame.navigateToEntry(currentWorld, entryToEdit);
         }

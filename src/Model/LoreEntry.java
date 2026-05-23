@@ -69,15 +69,15 @@ public class LoreEntry extends CodexEntry {
     }
 
     public List<String> getTimeline(){
-        return timeline;
+        return new ArrayList<>(timeline);
     }
 
     public List<String> getConsequences(){
-        return consequences;
+        return new ArrayList<>(consequences);
     }
 
     public List<String> getReferences(){
-        return references;
+        return new ArrayList<>(references);
     }
 
     //Setters
@@ -88,5 +88,14 @@ public class LoreEntry extends CodexEntry {
     public String toString(){
         return String.format("[Lore] %s | Era: %s | Timeline entries: %d | Consequences: %d",
                 getName(), era, timeline.size(), consequences.size());
+    }
+
+    @Override
+    public CodexEntry deepCopy() {
+        LoreEntry copy = new LoreEntry(getID(), getName(), getDescription(), era);
+        timeline.forEach(copy::addTimelineEntry);
+        consequences.forEach(copy::addConsequence);
+        references.forEach(copy::addReference);
+        return copy;
     }
 }

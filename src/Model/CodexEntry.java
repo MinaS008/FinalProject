@@ -26,7 +26,7 @@ public abstract class CodexEntry implements Serializable{
 
     public abstract String getType();
     public abstract String getSummary();
-
+    public abstract CodexEntry deepCopy();
     //Getters
     public String getID(){
         return id;

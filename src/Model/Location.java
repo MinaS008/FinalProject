@@ -58,11 +58,11 @@ public class Location extends CodexEntry {
     }
 
     public List<String> getSubLocations() {
-        return subLocations;
+        return new ArrayList<>(subLocations);
     }
 
     public List<String> getConnections() {
-        return connections;
+        return new ArrayList<>(connections);
     }
 
     //Setters
@@ -79,5 +79,14 @@ public class Location extends CodexEntry {
                 getName(), locationType,
                 region.isBlank() ? "none" : region,
                 subLocations.isEmpty() ? "none" : String.join(", ", subLocations));
+    }
+
+    @Override
+    public CodexEntry deepCopy() {
+        Location copy = new Location(getID(), getName(), getDescription(), locationType);
+        copy.setRegion(region);
+        subLocations.forEach(copy::addSubLocation);
+        connections.forEach(copy::addConnection);
+        return copy;
     }
 }

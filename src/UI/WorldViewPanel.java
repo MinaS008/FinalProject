@@ -98,8 +98,25 @@ public class WorldViewPanel extends JPanel {
             if (currentWorld != null) mainFrame.navigateToRelationships(currentWorld);
         });
 
+        JButton analyticsButton = buildStyleButton("📊 Analytics", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
+        analyticsButton.setForeground(ThemeConstants.colorTextSecondary);
+        analyticsButton.addActionListener(e -> {
+            if (currentWorld != null) mainFrame.navigateToAnalytics(currentWorld);
+        });
+
+        JButton undoButton = buildStyleButton("↩ Undo", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
+        undoButton.setForeground(ThemeConstants.colorTextSecondary);
+        undoButton.addActionListener(e -> handleUndo());
+
+        JButton redoButton = buildStyleButton("↪ Redo", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
+        redoButton.setForeground(ThemeConstants.colorTextSecondary);
+        redoButton.addActionListener(e -> handleRedo());
+
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttonRow.setOpaque(false);
+        buttonRow.add(undoButton);
+        buttonRow.add(redoButton);
+        buttonRow.add(analyticsButton);
         buttonRow.add(relButton);
         buttonRow.add(newEntryButton);
 
@@ -508,6 +525,30 @@ public class WorldViewPanel extends JPanel {
     private void updateEntryCount(){
         int count = currentWorld.getEntryCount();
         entryCountLabel.setText(count + " entr" + (count == 1 ? "y" : "ies"));
+    }
+
+    private void handleUndo() {
+        if (currentWorld == null) return;
+        String result = mainFrame.getUndoRedoManager().undo(currentWorld);
+        if (result == null) {
+            NotificationManager.showWarning(mainFrame, "Nothing to undo.");
+        } else {
+            mainFrame.saveWorld(currentWorld);
+            refresh();
+            NotificationManager.showSuccess(mainFrame, result);
+        }
+    }
+
+    private void handleRedo() {
+        if (currentWorld == null) return;
+        String result = mainFrame.getUndoRedoManager().redo(currentWorld);
+        if (result == null) {
+            NotificationManager.showWarning(mainFrame, "Nothing to redo.");
+        } else {
+            mainFrame.saveWorld(currentWorld);
+            refresh();
+            NotificationManager.showSuccess(mainFrame, result);
+        }
     }
 
     private JButton buildStyleButton(String text, Color bgColor, Color hoverColor){

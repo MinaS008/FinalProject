@@ -55,11 +55,11 @@ public class Faction extends CodexEntry {
     }
 
     public List<String> getMembers(){
-        return members;
+        return new ArrayList<>(members);
     }
 
     public List<String> getFactionRelationships(){
-        return factionRelationships;
+        return new ArrayList<>(factionRelationships);
     }
 
     //Setters
@@ -76,5 +76,14 @@ public class Faction extends CodexEntry {
                 getName(), members.size(),
                 goal.isBlank() ? "none" : goal,
                 ideology.isBlank() ? "none" : ideology);
+    }
+
+    @Override
+    public CodexEntry deepCopy() {
+        Faction copy = new Faction(getID(), getName(), getDescription(), goal);
+        copy.setIdeology(ideology);
+        members.forEach(copy::addMember);
+        factionRelationships.forEach(copy::addFactionRelationship);
+        return copy;
     }
 }

@@ -17,9 +17,11 @@ public class MainFrame extends JFrame {
     public static final String panelEntryEditor = "ENTRY EDITOR";
     public static final String panelEntryDetail = "ENTRY DETAIL";
     public static final String panelRelationships = "RELATIONSHIPS";
+    public static final String panelAnalytics = "ANALYTICS";
 
     private WorldManager manager;
     private DataStore dataStore;
+    private UndoRedoManager undoRedoManager;
     private JPanel cardContainer;
     private CardLayout cardLayout;
     private DashboardPanel dashboardPanel;
@@ -27,6 +29,7 @@ public class MainFrame extends JFrame {
     private EntryEditorPanel entryEditorPanel;
     private EntryDetailPanel entryDetailPanel;
     private RelationshipPanel relationshipPanel;
+    private AnalyticsPanel analyticsPanel;
 
     public MainFrame(){
         super("The Nexus Codex");
@@ -39,6 +42,7 @@ public class MainFrame extends JFrame {
 
     public void init(){
         manager = new WorldManager();
+        undoRedoManager = new UndoRedoManager();
 
         try{
             dataStore = new DataStore();
@@ -76,6 +80,9 @@ public class MainFrame extends JFrame {
 
         relationshipPanel = new RelationshipPanel(this, manager);
         cardContainer.add(relationshipPanel, panelRelationships);
+
+        analyticsPanel = new AnalyticsPanel(this);
+        cardContainer.add(analyticsPanel, panelAnalytics);
 
         cardLayout.show(cardContainer, panelDashboard);
 
@@ -118,6 +125,15 @@ public class MainFrame extends JFrame {
     public void navigateToRelationships(World world) {
         relationshipPanel.loadWorld(world);
         switchPanel(panelRelationships);
+    }
+
+    public void navigateToAnalytics(World world) {
+        analyticsPanel.loadWorld(world);
+        switchPanel(panelAnalytics);
+    }
+
+    public UndoRedoManager getUndoRedoManager() {
+        return undoRedoManager;
     }
 
     public void navigateToEntry(World world, CodexEntry entry){

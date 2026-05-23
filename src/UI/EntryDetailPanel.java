@@ -264,11 +264,12 @@ public class EntryDetailPanel extends JPanel {
     private void handleDelete() {
         boolean confirmed = NotificationManager.showConfirm(
                 mainFrame,
-                "Delete \"" + currentEntry.getName() + "\"?\nThis cannot be undone.",
+                "Delete \"" + currentEntry.getName() + "\"?",
                 "Confirm Delete");
 
         if (confirmed) {
             String deletedName = currentEntry.getName();
+            mainFrame.getUndoRedoManager().recordDelete(currentWorld, currentEntry);
             worldManager.deleteEntry(currentWorld.getID(), currentEntry.getID());
             mainFrame.saveWorld(currentWorld);
             NotificationManager.showSuccess(mainFrame, "\"" + deletedName + "\" deleted.");

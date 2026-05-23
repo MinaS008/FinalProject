@@ -250,7 +250,7 @@ public class DashboardPanel extends JPanel {
     private void handleDeleteWorld(World world){
         boolean confirmed = NotificationManager.showConfirm(
                 mainFrame,
-                "Delete \"" + world.getName() + "\"?\nThis cannot be undone.",
+                "Delete \"" + world.getName() + "\"?",
                 "Confirm Delete");
 
         if (confirmed) {

@@ -51,6 +51,12 @@ public class Item extends CodexEntry{
         return new ArrayList<>(ownerHistory);
     }
 
+    /** Replaces the entire owner history list (used by UndoRedoManager). */
+    public void replaceOwnerHistory(List<String> newHistory) {
+        ownerHistory.clear();
+        ownerHistory.addAll(newHistory);
+    }
+
     //Getters
     public String getRarity(){
         return rarity;
@@ -82,6 +88,14 @@ public class Item extends CodexEntry{
                 getName(), itemType, rarity,
                 power.isBlank() ? "none" : power,
                 getCurrentOwner());
+    }
+
+    @Override
+    public CodexEntry deepCopy() {
+        Item copy = new Item(getID(), getName(), getDescription(), rarity, itemType);
+        copy.setPower(power);
+        copy.replaceOwnerHistory(ownerHistory);
+        return copy;
     }
 
 }

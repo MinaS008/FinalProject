@@ -92,4 +92,14 @@ public class Character extends CodexEntry {
                 abilities.isEmpty() ? "none" : String.join(", ", abilities),
                 getDescription());
     }
+
+    @Override
+    public CodexEntry deepCopy() {
+        Character copy = new Character(getID(), getName(), getDescription(), role);
+        copy.setBackstory(backstory);
+        affiliations.forEach(copy::addAffiliation);
+        abilities.forEach(copy::addAbility);
+        relationships.forEach(copy::addRelationship);
+        return copy;
+    }
 }
