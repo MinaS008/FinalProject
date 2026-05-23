@@ -52,7 +52,7 @@ public class MainFrame extends JFrame {
         add(cardContainer, BorderLayout.CENTER);
     }
 
-    public void show(){
+    public void setWindowVisible(){
         setVisible(true);
     }
 

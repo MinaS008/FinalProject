@@ -10,7 +10,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             MainFrame frame = new MainFrame();
             frame.init();
-            frame.show();
+            frame.setWindowVisible();
         });
     }
 }

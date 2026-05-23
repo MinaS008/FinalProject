@@ -46,7 +46,7 @@ public class RelationshipPanel extends JPanel {
 
     private JLabel sidebarNameLabel;
     private JLabel sidebarTypeLabel;
-    private JPanel sidebarLinkList;
+    private JPanel sidebarLinkList = new JPanel();
 
     public RelationshipPanel(MainFrame mainFrame, WorldManager worldManager) {
         this.mainFrame = mainFrame;
@@ -135,6 +135,11 @@ public class RelationshipPanel extends JPanel {
         sidebar.add(Box.createVerticalStrut(ThemeConstants.padding));
         sidebar.add(makeSidebarDivider());
         sidebar.add(Box.createVerticalStrut(ThemeConstants.padding));
+
+        sidebarLinkList = new JPanel();
+        sidebarLinkList.setLayout(new BoxLayout(sidebarLinkList, BoxLayout.Y_AXIS));
+        sidebarLinkList.setOpaque(false);
+        sidebarLinkList.setAlignmentX(Component.LEFT_ALIGNMENT);
         sidebar.add(sidebarLinkList);
         sidebar.add(Box.createVerticalGlue());
 
@@ -431,7 +436,7 @@ public class RelationshipPanel extends JPanel {
                     //Place new nodes evenly around a circle
                     double angle = 2 * Math.PI * i / Math.max(total, 1);
                     x = cx + radius * Math.cos(angle);
-                    y = cy + radius + Math.sin(angle);
+                    y = cy + radius * Math.sin(angle);
                 }
                 nodes.add(new Node(e, x, y));
             }
@@ -614,9 +619,9 @@ public class RelationshipPanel extends JPanel {
 
         private Node nodeAt(int px, int py){
             for(Node n : nodes) {
-                    double dx = px - n.x;
-                    double dy = py - n.y;
-                    if(dx*dx + dy*dy <= (nodeRadius + 4)*(nodeRadius + 4)) return n;
+                double dx = px - n.x;
+                double dy = py - n.y;
+                if(dx*dx + dy*dy <= (nodeRadius + 4)*(nodeRadius + 4)) return n;
             }
             return null;
         }
@@ -690,7 +695,7 @@ public class RelationshipPanel extends JPanel {
 
     private JButton buildStyledButton(String text, Color bgColor, Color hover){
         JButton btn = new JButton(text) {
-             protected void paintComponent(Graphics g) {
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
@@ -715,4 +720,3 @@ public class RelationshipPanel extends JPanel {
         return btn;
     }
 }
-

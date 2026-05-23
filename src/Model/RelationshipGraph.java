@@ -42,6 +42,8 @@ public class RelationshipGraph implements Serializable {
     public void removeAllLinksFor(String entryID){
         List<RelationshipLink> links = adjacency.remove(entryID);
 
+        if (links == null) return;
+
         for(RelationshipLink link : links){
             List<RelationshipLink> otherList = adjacency.get(link.getToID());
             if(otherList != null){

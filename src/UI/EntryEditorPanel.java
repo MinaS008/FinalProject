@@ -222,6 +222,7 @@ public class EntryEditorPanel extends JPanel {
             JButton typeButton = buildTypeToggleButton(type, active);
             typeButton.addActionListener(e->{
                 selectedType = type;
+                resetAllLists();
                 rebuildForm(true);
             });
             buttonRow.add(typeButton);
@@ -563,10 +564,14 @@ public class EntryEditorPanel extends JPanel {
         JButton addButton = buildStyledButton(" + Add", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
         addButton.setForeground(ThemeConstants.colorAccent);
         addButton.addActionListener(e-> {
-            String value = inputField.getText().trim();
-            if(!value.isEmpty()){
-                backingList.add(value);
-                inputField.setText("");
+            String raw = inputField.getText().trim();
+            // Reject empty string AND the placeholder text itself
+            String placeholder = (String) inputField.getClientProperty("placeholder");
+            if(!raw.isEmpty() && !raw.equals(placeholder)){
+                backingList.add(raw);
+                // Restore placeholder appearance after clearing
+                inputField.setText(placeholder);
+                inputField.setForeground(ThemeConstants.colorTextPlaceholder);
                 refreshTagPanel(listPanel, backingList);
             }
         });
@@ -657,7 +662,8 @@ public class EntryEditorPanel extends JPanel {
                     return null;
                 }
                 Model.Character c = new Model.Character(id, name, description, role);
-                c.setBackstory(charBackstoryArea.getText().trim());
+                String rawBackstory = charBackstoryArea.getText().trim();
+                c.setBackstory(rawBackstory.equals("Character's origin and history...") ? "" : rawBackstory);
                 charAffiliations.forEach(c::addAffiliation);
                 charAbilities.forEach(c::addAbility);
                 charRelationships.forEach(c::addRelationship);
@@ -687,19 +693,22 @@ public class EntryEditorPanel extends JPanel {
                 }
                 String rarity = (String) itemRarityCombo.getSelectedItem();
                 Item item = new Item(id, name, description, rarity, itemType);
-                item.setPower(itemPowerArea.getText().trim());
+                String rawPower = itemPowerArea.getText().trim();
+                item.setPower(rawPower.equals("Describe the item's power or effect...") ? "" : rawPower);
                 itemOwners.forEach(item::addOwner);
                 return item;
             }
             case "Faction": {
-                String goal = factionGoalArea.getText().trim();
+                String rawGoal = factionGoalArea.getText().trim();
+                String goal = rawGoal.equals("The faction's primary objective...") ? "" : rawGoal;
                 Validator.ValidationResult factionResult = Validator.validateFaction(goal);
                 if (!factionResult.isValid()) {
                     showValidationError(factionResult.getMessage());
                     return null;
                 }
                 Faction f = new Faction(id, name, description, goal);
-                f.setIdeology(factionIdeologyArea.getText().trim());
+                String rawIdeology = factionIdeologyArea.getText().trim();
+                f.setIdeology(rawIdeology.equals("The faction's beliefs and values...") ? "" : rawIdeology);
                 factionMembers.forEach(f::addMember);
                 factionRelationships.forEach(f::addFactionRelationship);
                 return f;
@@ -722,12 +731,15 @@ public class EntryEditorPanel extends JPanel {
                 Model.Character c = (Model.Character) entry;
                 c.setRole(charRoleField.getText().trim());
                 c.setBackstory(charBackstoryArea.getText().trim());
-                // Replace all list content by clearing and re-adding
-                c.getAffiliations().forEach(c::removeAffiliation);
+                // Replace all list content by clearing and re-adding.
+                // Must snapshot first (toArray) because getAffiliations() etc.
+                // return defensive copies — iterating them to call remove()
+                // on the live list does nothing.
+                new ArrayList<>(c.getAffiliations()).forEach(c::removeAffiliation);
                 charAffiliations.forEach(c::addAffiliation);
-                c.getAbilities().forEach(c::removeAbility);
+                new ArrayList<>(c.getAbilities()).forEach(c::removeAbility);
                 charAbilities.forEach(c::addAbility);
-                c.getRelationships().forEach(c::removeRelationship);
+                new ArrayList<>(c.getRelationships()).forEach(c::removeRelationship);
                 charRelationships.forEach(c::addRelationship);
                 break;
             }
@@ -875,6 +887,9 @@ public class EntryEditorPanel extends JPanel {
                 new EmptyBorder(6, 8, 6, 8)));
         field.setAlignmentX(Component.LEFT_ALIGNMENT);
         field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+
+        // Store placeholder so other code (e.g. + Add button) can detect it
+        field.putClientProperty("placeholder", placeholder);
 
         field.setText(placeholder);
         field.setForeground(ThemeConstants.colorTextPlaceholder);
