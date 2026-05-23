@@ -114,6 +114,22 @@ public class WorldManager {
         worlds.put(world.getID(), world);
     }
 
+    public RelationshipGraph getGraph(String worldID) {
+        return getExistingWorld(worldID).getRelationshipGraph();
+    }
+
+    public void addLink(String worldID, String fromID, String toID, String label, String type) {
+        getExistingWorld(worldID).getRelationshipGraph().addLink(fromID, toID, label, type);
+    }
+
+    public boolean removeLink(String worldID, String fromID, String toID, String label) {
+        return getExistingWorld(worldID).getRelationshipGraph().removeLink(fromID, toID, label);
+    }
+
+    public List<RelationshipGraph.RelationshipLink> getLinks(String worldID, String entryID) {
+        return getExistingWorld(worldID).getRelationshipGraph().getConnections(entryID);
+    }
+
     //Private Helpers
     private World getExistingWorld(String worldID){
         World world = worlds.get(worldID);

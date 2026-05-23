@@ -16,17 +16,17 @@ public class MainFrame extends JFrame {
     public static final String panelWorldView = "WORLD VIEW";
     public static final String panelEntryEditor = "ENTRY EDITOR";
     public static final String panelEntryDetail = "ENTRY DETAIL";
+    public static final String panelRelationships = "RELATIONSHIPS";
 
     private WorldManager manager;
     private DataStore dataStore;
     private JPanel cardContainer;
     private CardLayout cardLayout;
-    private NavigationBar navBar;
-
     private DashboardPanel dashboardPanel;
     private WorldViewPanel worldViewPanel;
     private EntryEditorPanel entryEditorPanel;
     private EntryDetailPanel entryDetailPanel;
+    private RelationshipPanel relationshipPanel;
 
     public MainFrame(){
         super("The Nexus Codex");
@@ -48,14 +48,11 @@ public class MainFrame extends JFrame {
                     + "\n\nThe app will run but data will not be saved.");
         }
 
-        navBar = new NavigationBar(this);
-        add(navBar, BorderLayout.NORTH);
-
         buildCardContainer();
         add(cardContainer, BorderLayout.CENTER);
     }
 
-    public void display(){
+    public void show(){
         setVisible(true);
     }
 
@@ -77,6 +74,9 @@ public class MainFrame extends JFrame {
         entryDetailPanel = new EntryDetailPanel(this, manager);
         cardContainer.add(entryDetailPanel, panelEntryDetail);
 
+        relationshipPanel = new RelationshipPanel(this, manager);
+        cardContainer.add(relationshipPanel, panelRelationships);
+
         cardLayout.show(cardContainer, panelDashboard);
 
     }
@@ -86,9 +86,8 @@ public class MainFrame extends JFrame {
     }
 
     public void navigateToDashboard(){
-        navBar.highlight(NavigationBar.sectionDashboard, null, null);
         dashboardPanel.refresh();
-        cardLayout.show(cardContainer, panelDashboard);
+        switchPanel(panelDashboard);
     }
 
     public void navigateToWorld(String worldId) {
@@ -97,36 +96,33 @@ public class MainFrame extends JFrame {
             showErrorDialog("Could not find world with ID: " + worldId);
             return;
         }
-        navBar.highlight(NavigationBar.sectionWorldView, world, null);
         worldViewPanel.loadWorld(world);
-        cardLayout.show(cardContainer, panelWorldView);
+        switchPanel(panelWorldView);
     }
 
     public void navigateToWorldView() {
-        World world = worldViewPanel.getCurrentWorld();
-        navBar.highlight(NavigationBar.sectionWorldView, world, null);
         worldViewPanel.refresh();
         cardLayout.show(cardContainer, panelWorldView);
     }
 
     public void navigateToCreateEntry(World world) {
-        navBar.highlight(NavigationBar.sectionEntryEditor, world, "New Entry");
         entryEditorPanel.loadForCreate(world);
         cardLayout.show(cardContainer, panelEntryEditor);
     }
 
     public void navigateToEditor(World world, CodexEntry entry) {
-        navBar.highlight(NavigationBar.sectionEntryEditor, world,
-                "Edit: " + entry.getName());
         entryEditorPanel.loadForEdit(world, entry);
         cardLayout.show(cardContainer, panelEntryEditor);
     }
 
+    public void navigateToRelationships(World world) {
+        relationshipPanel.loadWorld(world);
+        switchPanel(panelRelationships);
+    }
+
     public void navigateToEntry(World world, CodexEntry entry){
-        navBar.highlight(NavigationBar.sectionEntryDetail, world, entry.getName());
         entryDetailPanel.loadEntry(world, entry);
         cardLayout.show(cardContainer, panelEntryDetail);
-
     }
 
     private void loadSavedWorlds(){

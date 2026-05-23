@@ -92,12 +92,23 @@ public class WorldViewPanel extends JPanel {
             if (currentWorld != null) mainFrame.navigateToCreateEntry(currentWorld);
         });
 
+        JButton relButton = buildStyleButton("⬡ Relationships", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
+        relButton.setForeground(ThemeConstants.colorTextSecondary);
+        relButton.addActionListener(e -> {
+            if (currentWorld != null) mainFrame.navigateToRelationships(currentWorld);
+        });
+
+        JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        buttonRow.setOpaque(false);
+        buttonRow.add(relButton);
+        buttonRow.add(newEntryButton);
+
         JPanel topRow = new JPanel(new BorderLayout(ThemeConstants.padding, 0));
         topRow.setOpaque(false);
         topRow.setBorder(new EmptyBorder(0, 0, ThemeConstants.padding, 0));
         topRow.add(backButton, BorderLayout.WEST);
         topRow.add(titleBlock, BorderLayout.CENTER);
-        topRow.add(newEntryButton, BorderLayout.EAST);
+        topRow.add(buttonRow, BorderLayout.EAST);
 
         wrapper.add(topRow, BorderLayout.CENTER);
         wrapper.add(separator, BorderLayout.SOUTH);
@@ -469,10 +480,6 @@ public class WorldViewPanel extends JPanel {
     }
 
     //Public API
-    public World getCurrentWorld() {
-        return currentWorld;
-    }
-
     public void loadWorld(World world){
         this.currentWorld = world;
         this.activeTab = tabAll;

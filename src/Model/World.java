@@ -18,6 +18,7 @@ public class World implements Serializable {
     private String updatedAt;
 
     private List<CodexEntry> entries;
+    private RelationshipGraph relationshipGraph;
 
 
     public World(String id, String name, String description){
@@ -29,6 +30,7 @@ public class World implements Serializable {
         this.createdAt = now;
         this.updatedAt = now;
         this.entries = new ArrayList<>();
+        this.relationshipGraph = new RelationshipGraph();
     }
 
     public void addEntry(CodexEntry entry){
@@ -41,7 +43,10 @@ public class World implements Serializable {
 
     public boolean removeEntry(String entryID){
         boolean removed = entries.removeIf(e-> e.getID().equals(entryID));
-        if (removed) refreshUpdatedAt();
+        if (removed) {
+            relationshipGraph.removeAllLinksFor(entryID);
+            refreshUpdatedAt();
+        }
         return removed;
     }
 
@@ -66,6 +71,11 @@ public class World implements Serializable {
             }
         }
         return filtered;
+    }
+
+    public RelationshipGraph getRelationshipGraph(){
+        if(relationshipGraph == null) relationshipGraph = new RelationshipGraph();
+        return relationshipGraph;
     }
 
     public int getEntryCount(){
