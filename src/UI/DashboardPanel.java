@@ -31,6 +31,14 @@ public class DashboardPanel extends JPanel {
                 ThemeConstants.padding * 2));
         add(buildHeader(), BorderLayout.NORTH);
         add(buildScrollableGrid(), BorderLayout.CENTER);
+
+        // Re-apply background when the theme changes, since setBackground()
+        // is called once in the constructor and doesn't auto-update.
+        ThemeManager.getInstance().addChangeListener(() -> {
+            setBackground(ThemeConstants.colorBackground);
+            if (worldGridPanel != null) worldGridPanel.setBackground(ThemeConstants.colorBackground);
+            refresh();
+        });
     }
 
     private JPanel buildHeader(){

@@ -11,13 +11,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class MainFrame extends JFrame {
-    public static final String panelDashboard = "DASHBOARD";
-
-    public static final String panelWorldView = "WORLD VIEW";
-    public static final String panelEntryEditor = "ENTRY EDITOR";
-    public static final String panelEntryDetail = "ENTRY DETAIL";
+    public static final String panelDashboard    = "DASHBOARD";
+    public static final String panelWorldView    = "WORLD VIEW";
+    public static final String panelEntryEditor  = "ENTRY EDITOR";
+    public static final String panelEntryDetail  = "ENTRY DETAIL";
     public static final String panelRelationships = "RELATIONSHIPS";
-    public static final String panelAnalytics = "ANALYTICS";
+    public static final String panelAnalytics    = "ANALYTICS";
 
     private WorldManager manager;
     private DataStore dataStore;
@@ -30,6 +29,8 @@ public class MainFrame extends JFrame {
     private EntryDetailPanel entryDetailPanel;
     private RelationshipPanel relationshipPanel;
     private AnalyticsPanel analyticsPanel;
+
+    private NavigationBar navigationBar;
 
     public MainFrame(){
         super("The Nexus Codex");
@@ -52,25 +53,32 @@ public class MainFrame extends JFrame {
                     + "\n\nThe app will run but data will not be saved.");
         }
 
+        // Build the navigation bar (with theme button) at the top
+        navigationBar = new NavigationBar(this);
+        add(navigationBar, BorderLayout.NORTH);
+
         buildCardContainer();
         add(cardContainer, BorderLayout.CENTER);
+
+        ThemeManager.getInstance().applyTheme(
+                ThemeManager.getInstance().getCurrentTheme(), this);
     }
 
     public void setWindowVisible(){
         setVisible(true);
     }
 
+
     private void buildCardContainer(){
         cardLayout = new CardLayout();
         cardContainer = new JPanel(cardLayout);
-
         cardContainer.setBackground(ThemeConstants.colorBackground);
 
         dashboardPanel = new DashboardPanel(this, manager);
-        cardContainer.add(dashboardPanel, panelDashboard);
+        cardContainer.add(dashboardPanel,   panelDashboard);
 
         worldViewPanel = new WorldViewPanel(this, manager);
-        cardContainer.add(worldViewPanel, panelWorldView);
+        cardContainer.add(worldViewPanel,   panelWorldView);
 
         entryEditorPanel = new EntryEditorPanel(this, manager);
         cardContainer.add(entryEditorPanel, panelEntryEditor);
@@ -82,10 +90,9 @@ public class MainFrame extends JFrame {
         cardContainer.add(relationshipPanel, panelRelationships);
 
         analyticsPanel = new AnalyticsPanel(this);
-        cardContainer.add(analyticsPanel, panelAnalytics);
+        cardContainer.add(analyticsPanel,   panelAnalytics);
 
         cardLayout.show(cardContainer, panelDashboard);
-
     }
 
     public void switchPanel(String panelName){
@@ -95,6 +102,7 @@ public class MainFrame extends JFrame {
     public void navigateToDashboard(){
         dashboardPanel.refresh();
         switchPanel(panelDashboard);
+        navigationBar.highlight(NavigationBar.sectionDashboard, null, null);
     }
 
     public void navigateToWorld(String worldId) {
@@ -105,31 +113,37 @@ public class MainFrame extends JFrame {
         }
         worldViewPanel.loadWorld(world);
         switchPanel(panelWorldView);
+        navigationBar.highlight(NavigationBar.sectionWorldView, world, null);
     }
 
     public void navigateToWorldView() {
         worldViewPanel.refresh();
         cardLayout.show(cardContainer, panelWorldView);
+        // breadcrumb stays as set by the caller
     }
 
     public void navigateToCreateEntry(World world) {
         entryEditorPanel.loadForCreate(world);
         cardLayout.show(cardContainer, panelEntryEditor);
+        navigationBar.highlight(NavigationBar.sectionEntryEditor, world, "New Entry");
     }
 
     public void navigateToEditor(World world, CodexEntry entry) {
         entryEditorPanel.loadForEdit(world, entry);
         cardLayout.show(cardContainer, panelEntryEditor);
+        navigationBar.highlight(NavigationBar.sectionEntryEditor, world, entry.getName());
     }
 
     public void navigateToRelationships(World world) {
         relationshipPanel.loadWorld(world);
         switchPanel(panelRelationships);
+        navigationBar.highlight(NavigationBar.sectionWorldView, world, null);
     }
 
     public void navigateToAnalytics(World world) {
         analyticsPanel.loadWorld(world);
         switchPanel(panelAnalytics);
+        navigationBar.highlight(NavigationBar.sectionWorldView, world, null);
     }
 
     public UndoRedoManager getUndoRedoManager() {
@@ -139,7 +153,10 @@ public class MainFrame extends JFrame {
     public void navigateToEntry(World world, CodexEntry entry){
         entryDetailPanel.loadEntry(world, entry);
         cardLayout.show(cardContainer, panelEntryDetail);
+        navigationBar.highlight(NavigationBar.sectionEntryDetail, world, entry.getName());
     }
+
+    public NavigationBar getNavigationBar() { return navigationBar; }
 
     private void loadSavedWorlds(){
         try{
@@ -177,6 +194,10 @@ public class MainFrame extends JFrame {
 
     private void applyTheme(){
         getContentPane().setBackground(ThemeConstants.colorBackground);
+    }
+
+    public void openThemePicker() {
+        ThemeManager.getInstance().showThemePicker(this, this);
     }
 
     public void showErrorDialog(String message){

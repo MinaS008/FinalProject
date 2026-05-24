@@ -75,6 +75,11 @@ public class EntryDetailPanel extends JPanel {
         leftBlock.add(entryNameLabel);
 
         //Right block
+        JButton exportButton = buildStyledButton("↑ Export",
+                ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
+        exportButton.setForeground(ThemeConstants.colorTextSecondary);
+        exportButton.addActionListener(e -> handleExport());
+
         JButton editButton = buildStyledButton("✎ Edit",
                 ThemeConstants.colorAccent, ThemeConstants.colorAccentDark);
         editButton.addActionListener(e -> handleEdit());
@@ -85,6 +90,7 @@ public class EntryDetailPanel extends JPanel {
 
         JPanel rightBlock = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         rightBlock.setOpaque(false);
+        rightBlock.add(exportButton);
         rightBlock.add(editButton);
         rightBlock.add(deleteButton);
 
@@ -259,6 +265,11 @@ public class EntryDetailPanel extends JPanel {
 
     private void handleEdit() {
         mainFrame.navigateToEditor(currentWorld, currentEntry);
+    }
+
+    private void handleExport() {
+        if (currentEntry == null || currentWorld == null) return;
+        ExportManager.exportEntry(mainFrame, currentWorld, currentEntry);
     }
 
     private void handleDelete() {

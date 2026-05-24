@@ -40,6 +40,7 @@ public class WorldViewPanel extends JPanel {
     private JScrollPane scrollPane;
     private JTextField searchField;
     private JLabel resultCountLabel;
+    private JComboBox<String> sortCombo;
 
     public WorldViewPanel(MainFrame mainFrame, WorldManager worldManager) {
         this.mainFrame = mainFrame;
@@ -53,6 +54,24 @@ public class WorldViewPanel extends JPanel {
 
         add(buildHeader(), BorderLayout.NORTH);
         add(buildCenterSection(), BorderLayout.CENTER);
+
+        // Re-apply background and re-render entry list on theme change.
+        ThemeManager.getInstance().addChangeListener(() -> {
+            setBackground(ThemeConstants.colorBackground);
+            if (entryListPanel != null) entryListPanel.setBackground(ThemeConstants.colorBackground);
+            // Re-colour text field and combo — these are system-painted and don't
+            // pick up ThemeConstants changes automatically on repaint.
+            if (searchField != null) {
+                searchField.setBackground(ThemeConstants.colorSurface);
+                searchField.setForeground(ThemeConstants.colorTextPrimary);
+                searchField.setCaretColor(ThemeConstants.colorTextPrimary);
+            }
+            if (sortCombo != null) {
+                sortCombo.setBackground(ThemeConstants.colorSurface);
+                sortCombo.setForeground(ThemeConstants.colorTextPrimary);
+            }
+            if (currentWorld != null) refresh();
+        });
     }
 
     public JPanel buildHeader() {
@@ -114,10 +133,17 @@ public class WorldViewPanel extends JPanel {
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttonRow.setOpaque(false);
+        JButton exportWorldButton = buildStyleButton("↑ Export World", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
+        exportWorldButton.setForeground(ThemeConstants.colorTextSecondary);
+        exportWorldButton.addActionListener(e -> {
+            if (currentWorld != null) ExportManager.exportWorld(mainFrame, currentWorld);
+        });
+
         buttonRow.add(undoButton);
         buttonRow.add(redoButton);
         buttonRow.add(analyticsButton);
         buttonRow.add(relButton);
+        buttonRow.add(exportWorldButton);
         buttonRow.add(newEntryButton);
 
         JPanel topRow = new JPanel(new BorderLayout(ThemeConstants.padding, 0));
@@ -202,7 +228,7 @@ public class WorldViewPanel extends JPanel {
         });
 
         // Sort dropdown
-        JComboBox<String> sortCombo = new JComboBox<>(SearchEngine.sortOptions);
+        sortCombo = new JComboBox<>(SearchEngine.sortOptions);
         sortCombo.setFont(ThemeConstants.fontSmall);
         sortCombo.setBackground(ThemeConstants.colorSurface);
         sortCombo.setForeground(ThemeConstants.colorTextPrimary);
