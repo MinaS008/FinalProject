@@ -1,6 +1,7 @@
 package UI;
 import Helper.*;
 import Controller.*;
+import Persistence.ImageManager;
 import Persistence.*;
 import Model.*;
 
@@ -17,9 +18,11 @@ public class MainFrame extends JFrame {
     public static final String panelEntryDetail  = "ENTRY DETAIL";
     public static final String panelRelationships = "RELATIONSHIPS";
     public static final String panelAnalytics    = "ANALYTICS";
+    public static final String panelTimeline    = "TIMELINE";
 
     private WorldManager manager;
     private DataStore dataStore;
+    private ImageManager imageManager;
     private UndoRedoManager undoRedoManager;
     private JPanel cardContainer;
     private CardLayout cardLayout;
@@ -29,7 +32,9 @@ public class MainFrame extends JFrame {
     private EntryDetailPanel entryDetailPanel;
     private RelationshipPanel relationshipPanel;
     private AnalyticsPanel analyticsPanel;
+    private TimelinePanel timelinePanel;
 
+    // The single NavigationBar instance — kept so ThemeManager can repaint it
     private NavigationBar navigationBar;
 
     public MainFrame(){
@@ -53,6 +58,13 @@ public class MainFrame extends JFrame {
                     + "\n\nThe app will run but data will not be saved.");
         }
 
+        try {
+            imageManager = new ImageManager();
+        } catch (IOException e) {
+            showErrorDialog("Could not initialise image storage:\n" + e.getMessage()
+                    + "\n\nImages cannot be saved this session.");
+        }
+
         // Build the navigation bar (with theme button) at the top
         navigationBar = new NavigationBar(this);
         add(navigationBar, BorderLayout.NORTH);
@@ -60,6 +72,8 @@ public class MainFrame extends JFrame {
         buildCardContainer();
         add(cardContainer, BorderLayout.CENTER);
 
+        // Re-apply the current theme once all components exist so every
+        // panel gets the correct background from the very first render.
         ThemeManager.getInstance().applyTheme(
                 ThemeManager.getInstance().getCurrentTheme(), this);
     }
@@ -70,14 +84,14 @@ public class MainFrame extends JFrame {
 
 
     private void buildCardContainer(){
-        cardLayout = new CardLayout();
-        cardContainer = new JPanel(cardLayout);
+        cardLayout     = new CardLayout();
+        cardContainer  = new JPanel(cardLayout);
         cardContainer.setBackground(ThemeConstants.colorBackground);
 
-        dashboardPanel = new DashboardPanel(this, manager);
+        dashboardPanel   = new DashboardPanel(this, manager);
         cardContainer.add(dashboardPanel,   panelDashboard);
 
-        worldViewPanel = new WorldViewPanel(this, manager);
+        worldViewPanel   = new WorldViewPanel(this, manager);
         cardContainer.add(worldViewPanel,   panelWorldView);
 
         entryEditorPanel = new EntryEditorPanel(this, manager);
@@ -89,8 +103,11 @@ public class MainFrame extends JFrame {
         relationshipPanel = new RelationshipPanel(this, manager);
         cardContainer.add(relationshipPanel, panelRelationships);
 
-        analyticsPanel = new AnalyticsPanel(this);
+        analyticsPanel   = new AnalyticsPanel(this);
         cardContainer.add(analyticsPanel,   panelAnalytics);
+
+        timelinePanel    = new TimelinePanel(this, manager);
+        cardContainer.add(timelinePanel,    panelTimeline);
 
         cardLayout.show(cardContainer, panelDashboard);
     }
@@ -150,6 +167,12 @@ public class MainFrame extends JFrame {
         return undoRedoManager;
     }
 
+    public void navigateToTimeline(World world) {
+        timelinePanel.loadWorld(world);
+        switchPanel(panelTimeline);
+        navigationBar.highlight(NavigationBar.sectionWorldView, world, null);
+    }
+
     public void navigateToEntry(World world, CodexEntry entry){
         entryDetailPanel.loadEntry(world, entry);
         cardLayout.show(cardContainer, panelEntryDetail);
@@ -191,6 +214,8 @@ public class MainFrame extends JFrame {
             showErrorDialog("Could not delete save file for world:\n" + e.getMessage());
         }
     }
+
+    public ImageManager getImageManager() { return imageManager; }
 
     private void applyTheme(){
         getContentPane().setBackground(ThemeConstants.colorBackground);

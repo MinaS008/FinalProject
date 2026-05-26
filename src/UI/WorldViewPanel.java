@@ -123,6 +123,19 @@ public class WorldViewPanel extends JPanel {
             if (currentWorld != null) mainFrame.navigateToAnalytics(currentWorld);
         });
 
+        JButton timelineButton = buildStyleButton(
+                "🕒 Timeline",
+                ThemeConstants.colorSurface,
+                ThemeConstants.colorSurfaceHover
+        );
+        timelineButton.setForeground(ThemeConstants.colorTextSecondary);
+
+        timelineButton.addActionListener(e -> {
+            if (currentWorld != null) {
+                mainFrame.navigateToTimeline(currentWorld);
+            }
+        });
+
         JButton undoButton = buildStyleButton("↩ Undo", ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
         undoButton.setForeground(ThemeConstants.colorTextSecondary);
         undoButton.addActionListener(e -> handleUndo());
@@ -142,6 +155,7 @@ public class WorldViewPanel extends JPanel {
         buttonRow.add(undoButton);
         buttonRow.add(redoButton);
         buttonRow.add(analyticsButton);
+        buttonRow.add(timelineButton);
         buttonRow.add(relButton);
         buttonRow.add(exportWorldButton);
         buttonRow.add(newEntryButton);

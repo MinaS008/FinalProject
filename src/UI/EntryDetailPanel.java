@@ -22,6 +22,7 @@ public class EntryDetailPanel extends JPanel {
     private JLabel typeBadgeLabel;
     private JPanel detailBody;
     private JScrollPane scrollPane;
+    private ImagePanel imagePanel;
 
     public EntryDetailPanel(MainFrame mainFrame, WorldManager worldManager) {
         this.mainFrame = mainFrame;
@@ -35,6 +36,18 @@ public class EntryDetailPanel extends JPanel {
 
         add(buildHeader(), BorderLayout.NORTH);
         add(buildScrollBody(), BorderLayout.CENTER);
+
+        // ImagePanel is built lazily on first load so mainFrame is fully constructed
+    }
+
+    private ImagePanel getOrCreateImagePanel() {
+        if (imagePanel == null) {
+            ImageManager im = mainFrame.getImageManager();
+            if (im != null) {
+                imagePanel = new ImagePanel(im, ImagePanel.Mode.Detail);
+            }
+        }
+        return imagePanel;
     }
 
     private JPanel buildHeader() {
@@ -75,11 +88,6 @@ public class EntryDetailPanel extends JPanel {
         leftBlock.add(entryNameLabel);
 
         //Right block
-        JButton exportButton = buildStyledButton("↑ Export",
-                ThemeConstants.colorSurface, ThemeConstants.colorSurfaceHover);
-        exportButton.setForeground(ThemeConstants.colorTextSecondary);
-        exportButton.addActionListener(e -> handleExport());
-
         JButton editButton = buildStyledButton("✎ Edit",
                 ThemeConstants.colorAccent, ThemeConstants.colorAccentDark);
         editButton.addActionListener(e -> handleEdit());
@@ -90,7 +98,6 @@ public class EntryDetailPanel extends JPanel {
 
         JPanel rightBlock = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         rightBlock.setOpaque(false);
-        rightBlock.add(exportButton);
         rightBlock.add(editButton);
         rightBlock.add(deleteButton);
 
@@ -146,6 +153,17 @@ public class EntryDetailPanel extends JPanel {
 
         //Rebuild detail body
         detailBody.removeAll();
+
+        // Image section (only when ImageManager is available)
+        ImagePanel ip = getOrCreateImagePanel();
+        if (ip != null) {
+            ip.load(currentEntry.getID());
+            JPanel imgSection = buildSection("Image");
+            imgSection.add(ip);
+            detailBody.add(imgSection);
+            detailBody.add(spacer(12));
+        }
+
         detailBody.add(buildDescriptionSection());
         detailBody.add(spacer(12));
         detailBody.add(buildTypeSpecificSection());
@@ -265,11 +283,6 @@ public class EntryDetailPanel extends JPanel {
 
     private void handleEdit() {
         mainFrame.navigateToEditor(currentWorld, currentEntry);
-    }
-
-    private void handleExport() {
-        if (currentEntry == null || currentWorld == null) return;
-        ExportManager.exportEntry(mainFrame, currentWorld, currentEntry);
     }
 
     private void handleDelete() {

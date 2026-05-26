@@ -85,6 +85,7 @@ public class EntryEditorPanel extends JPanel {
     private JPanel typeSpecificForm;
     private JPanel formContainer;
     private JScrollPane scrollPane;
+    private ImagePanel imagePanel;
 
     public EntryEditorPanel(MainFrame mainFrame, WorldManager worldManager) {
         this.mainFrame = mainFrame;
@@ -98,6 +99,16 @@ public class EntryEditorPanel extends JPanel {
 
         add(buildHeader(), BorderLayout.NORTH);
         add(buildScrollForm(), BorderLayout.CENTER);
+    }
+
+    private ImagePanel getOrCreateImagePanel() {
+        if (imagePanel == null) {
+            ImageManager im = mainFrame.getImageManager();
+            if (im != null) {
+                imagePanel = new ImagePanel(im, ImagePanel.Mode.Editor);
+            }
+        }
+        return imagePanel;
     }
 
     private JPanel buildHeader() {
@@ -206,6 +217,17 @@ public class EntryEditorPanel extends JPanel {
                 descriptionArea.setText(existingDesc);
                 descriptionArea.setForeground(ThemeConstants.colorTextPrimary);
             }
+        }
+
+        // Image section
+        ImagePanel ip = getOrCreateImagePanel();
+        if (ip != null) {
+            String idForImage = (entryToEdit != null) ? entryToEdit.getID() : null;
+            ip.load(idForImage);
+            JPanel imgSection = buildSection("Entry Image");
+            imgSection.add(ip);
+            formContainer.add(imgSection);
+            formContainer.add(vertSpacer(ThemeConstants.padding));
         }
 
         SwingUtilities.invokeLater(()->

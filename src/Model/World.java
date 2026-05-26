@@ -19,6 +19,7 @@ public class World implements Serializable {
 
     private List<CodexEntry> entries;
     private RelationshipGraph relationshipGraph;
+    private List<TimelineEvent> timelineEvents;
 
 
     public World(String id, String name, String description){
@@ -111,6 +112,35 @@ public class World implements Serializable {
     public void setDescription(String description){
         this.description = description;
         refreshUpdatedAt();
+    }
+
+    //Timeline event accessors
+    public List<TimelineEvent> getTimelineEvents() {
+        if (timelineEvents == null) timelineEvents = new ArrayList<>();
+        return new ArrayList<>(timelineEvents);
+    }
+
+    public void addTimelineEvent(TimelineEvent event) {
+        if (timelineEvents == null) timelineEvents = new ArrayList<>();
+        if (event != null) {
+            timelineEvents.add(event);
+            refreshUpdatedAt();
+        }
+    }
+
+    public boolean removeTimelineEvent(String eventId) {
+        if (timelineEvents == null) return false;
+        boolean removed = timelineEvents.removeIf(e -> e.getId().equals(eventId));
+        if (removed) refreshUpdatedAt();
+        return removed;
+    }
+
+    public TimelineEvent getTimelineEventById(String eventId) {
+        if (timelineEvents == null) return null;
+        for (TimelineEvent e : timelineEvents) {
+            if (e.getId().equals(eventId)) return e;
+        }
+        return null;
     }
 
     //Helpers
