@@ -37,7 +37,6 @@ public class EntryDetailPanel extends JPanel {
         add(buildHeader(), BorderLayout.NORTH);
         add(buildScrollBody(), BorderLayout.CENTER);
 
-        // ImagePanel is built lazily on first load so mainFrame is fully constructed
     }
 
     private ImagePanel getOrCreateImagePanel() {
