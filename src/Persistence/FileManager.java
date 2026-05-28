@@ -45,6 +45,4 @@ public class FileManager {
             return paths.toArray(new String[0]);
         }
     }
-
-
 }

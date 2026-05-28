@@ -60,7 +60,7 @@ public class DataStore {
         return fileManager.deleteFile(filePath);
     }
 
-    public boolean savedWorldExists(String worldID) throws IOException {
+    public boolean savedWorldExists (String worldID) throws IOException {
         String filePath = fileManager.getWorldFilePath(worldID);
         return fileManager.fileExists(filePath);
     }
