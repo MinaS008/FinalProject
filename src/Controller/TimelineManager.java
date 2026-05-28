@@ -40,7 +40,7 @@ public class TimelineManager {
             throw new IllegalArgumentException(nameResult.getMessage());
         }
 
-        if (era == null | era.isBlank()){
+        if (era == null || era.isBlank()){
             throw new IllegalArgumentException("Era cannot be empty.");
         }
 

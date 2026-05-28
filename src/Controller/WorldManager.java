@@ -40,7 +40,7 @@ public class WorldManager {
         World world = getExistingWorld(worldID);
 
         if(newName == null || newName.isBlank()){
-            throw new IllegalArgumentException("World cannot be empty.");
+            throw new IllegalArgumentException("World name cannot be empty.");
         }
 
         world.setName(newName);

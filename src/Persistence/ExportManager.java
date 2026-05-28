@@ -176,7 +176,7 @@ public class ExportManager {
             if (group.isEmpty()) continue;
 
             sb.append(divider).append("\n");
-            sb.append("  ").append(type.toUpperCase()).append("S (").append(group.size()).append(")\n");
+            sb.append("  ").append(typeSectionHeader(type)).append(" (").append(group.size()).append(")\n");
             sb.append(divider).append("\n\n");
 
             for (CodexEntry entry : group) {
@@ -379,6 +379,17 @@ public class ExportManager {
 
     private static String sanitiseFilename(String name){
         return name.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+    }
+
+    private static String typeSectionHeader(String type) {
+        switch (type) {
+            case "Character": return "CHARACTERS";
+            case "Location": return "LOCATIONS";
+            case "Item": return "ITEMS";
+            case "Faction": return "FACTIONS";
+            case "Lore": return "LORE ENTRIES";
+            default: return type.toUpperCase() + "S";
+        }
     }
 
     private static String timestamp(){

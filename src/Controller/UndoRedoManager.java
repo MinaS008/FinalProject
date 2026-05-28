@@ -29,7 +29,7 @@ public class UndoRedoManager {
     private final Stack<Action> redoStack = new Stack<>();
 
     public void recordAdd(World world, CodexEntry entry){
-        push(new Action(ActionType.ADD, world.getID(), entry));
+        push(new Action(ActionType.ADD, world.getID(), entry.deepCopy()));
     }
 
     public void recordDelete(World world, CodexEntry entry){

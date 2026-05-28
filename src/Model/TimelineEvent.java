@@ -1,12 +1,9 @@
 package Model;
 
-import UI.TimelinePanel;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TimelineEvent implements Serializable {

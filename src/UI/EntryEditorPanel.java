@@ -879,11 +879,8 @@ public class EntryEditorPanel extends JPanel {
                 item.setRarity((String) itemRarityCombo.getSelectedItem());
                 String rawPower = itemPowerArea.getText().trim();
                 item.setPower(rawPower.equals("Describe the item's power or effect...") ? "" : rawPower);
-                // Owner history: append any new owners not already in the list
-                List<String> existing = item.getOwnerHistory();
-                for (String owner : itemOwners) {
-                    if (!existing.contains(owner)) item.addOwner(owner);
-                }
+                // Replace entire owner history so removals made in the editor are respected
+                item.replaceOwnerHistory(itemOwners);
                 break;
             }
             case "Faction": {
